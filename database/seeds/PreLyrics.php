@@ -42,6 +42,7 @@ class PreLyrics extends Seeder
 							In all that I do every word that I say
 							I'll be giving my all just for Him, for Him",
 		    'belongTo' => 1,
+		    'created_at' => date("Y-m-d H:i:s"),
         ],
     	[
             'title' => "Tears in heaven",
@@ -77,6 +78,7 @@ class PreLyrics extends Seeder
 							Will you be the same
 							If I saw you in Heaven?",
 		    'belongTo' => 1,
+		    'created_at' => date("Y-m-d H:i:s"),
         ]]);
     }
 }

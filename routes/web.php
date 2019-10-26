@@ -15,7 +15,7 @@ Route::get('/', function () {
     return view('auth.login');
 });
 
-Auth::routes();
 Route::post("/logout","SongController@logout")->name("logout");
 Route::get('/home', 'HomeController@index')->name('home');
 Route::resource("lyrics","SongController");
+Auth::routes();

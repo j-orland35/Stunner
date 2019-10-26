@@ -19,7 +19,6 @@ class SongController extends Controller
     { 
         $user = Auth::user();
         if(Auth::check()){
-
         $title = $this->toArrayByIndex($this->personalEntries(),"title");
         $id = $this->toArrayByIndex($this->personalEntries(),"id");
         return view("layouts.lyrics",["entryId" => $id,"entryTitle" => $title,"userName" => $user->name]);
@@ -44,7 +43,7 @@ class SongController extends Controller
     }
     public function logout(){
         Auth::logout();
-        return redirect('/lyrics');
+        return redirect('/login');
     }
     /**
      * Show the form for creating a new resource.
