@@ -64,7 +64,7 @@ class SongController extends Controller
     public function store(Request $request){
         $insert = new Song;
         $insert->title =  $request->title;
-        $insert->artist = $request->title;
+        $insert->artist = $request->artist;
         $insert->lyrics = $request->lyrics;
         $insert->belongTo = Auth::id();
         $insert->save();
