@@ -80,7 +80,7 @@ class SongController extends Controller
      */
     public function show($id)
     {
-        //
+         return  Song::where('belongTo',Auth::id())->get();
     }
 
     /**
@@ -119,6 +119,8 @@ class SongController extends Controller
      */
     public function destroy($id)
     {
-        //
+        $entry = Song::find($id);
+        $entry->delete();
+        return $id;
     }
 }

@@ -5,9 +5,13 @@
 	width: 500px;
 	height: 300px;
 }
-#record,#update{
+#record,#update,#delBtn{
 	float: right;
 	clear: both;
+}
+#delBtn{
+	position: absolute;
+	left: 370px;
 }
 #displayArea{
 	width: 500px;
@@ -16,4 +20,12 @@
 	border-style: solid;
 	border-width: 1px;
 	border-color:red;
+}
+.hideme{
+	display: none;
+}
+.toright{
+	position: absolute;
+	right: 20px;
+	top: 5px;
 }

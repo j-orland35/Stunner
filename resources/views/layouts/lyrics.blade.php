@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
+	<link rel="stylesheet" type="text/css" href="{{asset('css/datatable.css')}}">
 	<link rel="stylesheet" type="text/css" href="{{asset('css/main.css')}}">
 </head>
 <body>
@@ -8,7 +9,7 @@
 Logged as:{{$userName}}
 
 <div class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown">
-	<a class="dropdown-item" href="{{ route('logout') }}"
+	<a class="dropdown-item toright" href="{{ route('logout') }}"
 	   onclick="event.preventDefault();
 	                 document.getElementById('logout-form').submit();">
 	    {{ __('Logout') }}
@@ -21,14 +22,20 @@ Logged as:{{$userName}}
 
 <br><br>
 	   
-	  {{ __('Edit lyrics') }}
+	  {{ __('Edit/Delete lyrics') }}
 	 <select id="editEntry">
 	 		<option value="0"></option>
 	    	@foreach($entryTitle as$key => $value)
 	    	<option value="{{$entryId[$key]}}">{{$value}}</option>
 	    	@endforeach
 	  </select>
-
+<br><br>
+	   
+	   <a class="dropdown-item" id="showAll" href="/"
+	   onclick="event.preventDefault()">
+	    {{ __('Show lists of lyrics') }}
+	</a>
+	 
 
 	<form id="logout-form" action="{{ route('logout') }}" method="POST" style="display: none;">
 	    @csrf
@@ -42,8 +49,9 @@ Logged as:{{$userName}}
 </body>
 
 <script type="text/javascript" src="{{asset('js/jquery.js')}}"></script>
+<script type="text/javascript" src="{{asset('js/datatable.js')}}"></script>
 <script type="text/javascript">
-$(document).ready(function(){
+	$(document).ready(function(){
   $("#newLyrics").click(function(evt){
   	evt.preventDefault();
   	const data = entry("new");
@@ -77,18 +85,40 @@ $(document).ready(function(){
 		    	      data.title.value = res.title;
 		    	      data.artist.value = res.artist;
 		    	      data.lyrics.value = res.lyrics;
+		    	data.delBtn.classList.remove('hideme');
 				data.submitBtn.addEventListener("click",()=>{
 		  		if(checkData({title:data.title.value,artist:data.artist.value,lyrics:data.lyrics.value},data)){
-				let conn2 = fetch(`/lyrics/${id.val()}`,{method:'PUT',
+					let conn2 = fetch(`/lyrics/${id.val()}`,{method:'PUT',
+					           headers:{
+					           	"Content-Type":"application/json",
+					           	"X-CSRF-Token": token
+					           },
+					           body:JSON.stringify({title:data.title.value,artist:data.artist.value,lyrics:data.lyrics.value})
+					       });
+					    conn2.then(res => res.json()).then(res=>{
+					     id[0].textContent = data.title.value;
+					     data.msg.innerHTML = "Upated Successfully";
+					     setTimeout(()=>data.msg.innerHTML = "",3000);
+					 });
+			  	}
+		  		});
+		  		data.delBtn.addEventListener("click",()=>{
+		  		if(checkData({title:data.title.value,artist:data.artist.value,lyrics:data.lyrics.value},data)){
+				let conn3 = fetch(`/lyrics/${id.val()}`,{method:'DELETE',
 				           headers:{
 				           	"Content-Type":"application/json",
 				           	"X-CSRF-Token": token
 				           },
 				           body:JSON.stringify({title:data.title.value,artist:data.artist.value,lyrics:data.lyrics.value})
 				       });
-				    conn2.then(res => res.json()).then(res=>{id[0].textContent = data.title.value;
-				     data.msg.innerHTML = "Upated Successfully";
+				    conn3.then(res => res.json()).then(res=>{id[0].remove();
+				    data.msg.innerHTML = "Deleted Successfully";
+				    data.title.value = "";
+		    	    data.artist.value = "";
+		    	    data.lyrics.value = "";
+		    	    data.delBtn.classList.add("hideme");
 				     setTimeout(()=>data.msg.innerHTML = "",3000);
+
 				 });
 			  	}
 		  		});
@@ -96,7 +126,42 @@ $(document).ready(function(){
 	 } 	
 
   });
+
+  $("#showAll").on("click",()=>{
+  	$("#editEntry").val(0);
+  		let conn = fetch(`/lyrics/0`);
+		    conn.then(res => res.json()).then(res=>{dataTableContruct(res);
+  		});
+  });
+
 });
+function dataTableContruct(data){
+	let str = `<table id="table_id">
+				<thead>
+			        <tr>
+			            <th>Title</th>
+			            <th>Artist</th>
+			            <th>Lyrics</th>
+			            <th>Created</th>
+			        </tr>
+			    </thead>`;
+    str += '<tbody>';
+    if(data.length > 0){
+      for(let per in data){
+      	 str += `<tr>
+      	 		  <td>${data[per].title}</td>
+      	 		  <td>${data[per].artist}</td>
+      	 		  <td>${data[per].lyrics}</td>
+      	 		  <td>${data[per].created_at}</td>
+      	 		 </tr>`;
+      }
+    }
+    str +=`</tbody></table>`;
+
+	$("#displayArea").html(str);
+	$('#table_id').DataTable();
+
+}
 function checkData(data,obj){
 	let verified = true;
 	for(let per in data){
@@ -143,18 +208,24 @@ function entry(perform){
 		container.append(document.createElement("br"));
    let submitBtn = document.createElement('input');
        submitBtn.type = "button";
+   let delBtn = document.createElement('input');
+       delBtn.type = "button";
+
        if(perform == "new"){
        	submitBtn.id   = "record";
        	submitBtn.value = "Save";
    		}else if(perform == "up"){
-   		 submitBtn.id   = "update";
+   		 submitBtn.id    = "update";
        	 submitBtn.value = "Update";
+       	 delBtn.id       = "delBtn";
+       	 delBtn.value    = "Delete";
+       	 container.append(delBtn);
    		}
        container.append(submitBtn);
        msg.id = "msg";
        container.append(msg);
 	$("#displayArea").html(container);
-	return {title,artist,lyrics,submitBtn,msg};
+	return {title,artist,lyrics,submitBtn,msg,delBtn};
 }
 </script>
 </html>
