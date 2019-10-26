@@ -20,8 +20,9 @@ class SongController extends Controller
         $user = Auth::user();
         if(Auth::check()){
 
-            $lists = $this->toArrayByIndex($this->personalEntries(),"id");
-            return view("layouts.lyrics",["entries" => $lists,"userName" => $user->name]);
+        $title = $this->toArrayByIndex($this->personalEntries(),"title");
+        $id = $this->toArrayByIndex($this->personalEntries(),"id");
+        return view("layouts.lyrics",["entryId" => $id,"entryTitle" => $title,"userName" => $user->name]);
         }
        
     }
@@ -90,7 +91,7 @@ class SongController extends Controller
      */
     public function edit($id)
     {
-        //
+        return  Song::where('id',$id)->first();
     }
 
     /**
@@ -102,7 +103,12 @@ class SongController extends Controller
      */
     public function update(Request $request, $id)
     {
-        //
+        $entry = Song::find($id);
+        $entry->title =  $request->title;
+        $entry->artist = $request->artist;
+        $entry->lyrics = $request->lyrics;
+        $entry->save();
+        return $id;
     }
 
     /**

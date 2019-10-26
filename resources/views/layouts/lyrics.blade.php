@@ -13,20 +13,27 @@ Logged as:{{$userName}}
 	                 document.getElementById('logout-form').submit();">
 	    {{ __('Logout') }}
 	</a>
-<br>
+<br><br>
 	<a class="dropdown-item" href="/lyrics/create" id="newLyrics">
 	   
 	    {{ __('Create new lyrics') }}
 	</a>
+
+<br><br>
+	   
+	  {{ __('Edit lyrics') }}
+	 <select id="editEntry">
+	 		<option value="0"></option>
+	    	@foreach($entryTitle as$key => $value)
+	    	<option value="{{$entryId[$key]}}">{{$value}}</option>
+	    	@endforeach
+	  </select>
 
 
 	<form id="logout-form" action="{{ route('logout') }}" method="POST" style="display: none;">
 	    @csrf
 	</form>
 
-	<form id="create-new" action="/lyrics/create" method="POST" style="display: none;">
-	    @csrf
-	</form>
 </div>
 <br>
 <div id="displayArea">
@@ -39,7 +46,9 @@ Logged as:{{$userName}}
 $(document).ready(function(){
   $("#newLyrics").click(function(evt){
   	evt.preventDefault();
-  	const data = newEntry();
+  	const data = entry("new");
+  	const up = $("#editEntry");
+  	up.val(0);
   	data.submitBtn.addEventListener("click",()=>{
   		if(checkData({title:data.title.value,artist:data.artist.value,lyrics:data.lyrics.value},data)){
   		let token = "{{csrf_token()}}";
@@ -50,9 +59,42 @@ $(document).ready(function(){
 		           },
 		           body:JSON.stringify({title:data.title.value,artist:data.artist.value,lyrics:data.lyrics.value})
 		       });
-		    conn.then(res => res.json()).then(res=>console.log(res));
+		    conn.then(res => res.json()).then(res=> {data.msg.innerHTML = "Recorded Successfully";
+		    	up.append(`<option value=${res}>${data.title.value}`);
+		    	setTimeout(()=>data.msg.innerHTML = "",3000);
+		    	up.val(res).trigger("change");
+			});
 	  	}
   	});
+  });
+  $("#editEntry").on("change",()=>{
+  	 let id = $(this).find(":selected");
+  	 if(parseInt(id.val()) > 0){
+  	 let token = "{{csrf_token()}}";
+		let conn = fetch(`/lyrics/${id.val()}/edit`);
+		    conn.then(res => res.json()).then(res=>{
+		    	const data = entry("up");
+		    	      data.title.value = res.title;
+		    	      data.artist.value = res.artist;
+		    	      data.lyrics.value = res.lyrics;
+				data.submitBtn.addEventListener("click",()=>{
+		  		if(checkData({title:data.title.value,artist:data.artist.value,lyrics:data.lyrics.value},data)){
+				let conn2 = fetch(`/lyrics/${id.val()}`,{method:'PUT',
+				           headers:{
+				           	"Content-Type":"application/json",
+				           	"X-CSRF-Token": token
+				           },
+				           body:JSON.stringify({title:data.title.value,artist:data.artist.value,lyrics:data.lyrics.value})
+				       });
+				    conn2.then(res => res.json()).then(res=>{id[0].textContent = data.title.value;
+				     data.msg.innerHTML = "Upated Successfully";
+				     setTimeout(()=>data.msg.innerHTML = "",3000);
+				 });
+			  	}
+		  		});
+		     });
+	 } 	
+
   });
 });
 function checkData(data,obj){
@@ -67,8 +109,9 @@ function checkData(data,obj){
 	}
 	return verified;
 }
-function newEntry(){
+function entry(perform){
 	let container  = document.createElement("div");
+	let msg        = document.createElement("div");
 	let titleText  = document.createTextNode("Title: ");
 	let title      = document.createElement("input");
 		title.type = "text";
@@ -100,11 +143,18 @@ function newEntry(){
 		container.append(document.createElement("br"));
    let submitBtn = document.createElement('input');
        submitBtn.type = "button";
-       submitBtn.id   = "record";
-       submitBtn.value = "Save";
+       if(perform == "new"){
+       	submitBtn.id   = "record";
+       	submitBtn.value = "Save";
+   		}else if(perform == "up"){
+   		 submitBtn.id   = "update";
+       	 submitBtn.value = "Update";
+   		}
        container.append(submitBtn);
+       msg.id = "msg";
+       container.append(msg);
 	$("#displayArea").html(container);
-	return {title,artist,lyrics,submitBtn};
+	return {title,artist,lyrics,submitBtn,msg};
 }
 </script>
 </html>
