@@ -4,7 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-
+use App\Song;
 class SongController extends Controller
 {
     /**
@@ -19,9 +19,27 @@ class SongController extends Controller
     { 
         $user = Auth::user();
         if(Auth::check()){
-             return view("layouts.lyrics",["userId" => $user->id,"userName" => $user->name]);
+
+            $lists = $this->toArrayByIndex($this->personalEntries(),"id");
+            return view("layouts.lyrics",["entries" => $lists,"userName" => $user->name]);
         }
        
+    }
+    public function personalEntries($arr=null){
+        if(is_array($arr)){
+            $data = Song::where('belongTo',Auth::id())->get($arr);
+        }else{
+            $data = Song::where('belongTo',Auth::id())->get();
+        }
+
+        return $data;
+    }
+    public function toArrayByIndex($data,$index){
+        $lists = [];
+        foreach($data as $value){
+            array_push($lists,$value->$index);
+        }
+        return $lists;
     }
     public function logout(){
         Auth::logout();
@@ -34,7 +52,7 @@ class SongController extends Controller
      */
     public function create()
     {
-        //
+    
     }
 
     /**
@@ -43,9 +61,14 @@ class SongController extends Controller
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
-    public function store(Request $request)
-    {
-        //
+    public function store(Request $request){
+        $insert = new Song;
+        $insert->title =  $request->title;
+        $insert->artist = $request->title;
+        $insert->lyrics = $request->lyrics;
+        $insert->belongTo = Auth::id();
+        $insert->save();
+        return $insert->id;
     }
 
     /**

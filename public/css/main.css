@@ -1,0 +1,19 @@
+.newLyricsEntry{
+	width:400px;
+}
+.textString{
+	width: 500px;
+	height: 300px;
+}
+#record{
+	float: right;
+	clear: both;
+}
+#displayArea{
+	width: 500px;
+}
+.err{
+	border-style: solid;
+	border-width: 1px;
+	border-color:red;
+}
