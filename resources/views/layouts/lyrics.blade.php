@@ -97,7 +97,7 @@ Logged as:{{$userName}}
 					       });
 					    conn2.then(res => res.json()).then(res=>{
 					     id[0].textContent = data.title.value;
-					     data.msg.innerHTML = "Upated Successfully";
+					     data.msg.innerHTML = "Updated Successfully";
 					     setTimeout(()=>data.msg.innerHTML = "",3000);
 					 });
 			  	}
