@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 
 class SongController extends Controller
 {
@@ -16,9 +17,16 @@ class SongController extends Controller
     }
     public function index()
     { 
-        return view("layouts.lyrics");
+        $user = Auth::user();
+        if(Auth::check()){
+             return view("layouts.lyrics",["userId" => $user->id,"userName" => $user->name]);
+        }
+       
     }
-
+    public function logout(){
+        Auth::logout();
+        return redirect('/lyrics');
+    }
     /**
      * Show the form for creating a new resource.
      *
