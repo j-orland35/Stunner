@@ -29,3 +29,12 @@
 	right: 20px;
 	top: 5px;
 }
+.bck{
+	background-color: beige;
+}
+#displayArea{
+	background-color: gainsboro;
+}
+#table_id{
+	background-color: green;
+}

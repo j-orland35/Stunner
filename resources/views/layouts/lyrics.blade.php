@@ -8,7 +8,7 @@
 
 Logged as:{{$userName}}
 
-<div class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown">
+<div class="dropdown-menu dropdown-menu-right bck" aria-labelledby="navbarDropdown">
 	<a class="dropdown-item toright" href="{{ route('logout') }}"
 	   onclick="event.preventDefault();
 	                 document.getElementById('logout-form').submit();">
